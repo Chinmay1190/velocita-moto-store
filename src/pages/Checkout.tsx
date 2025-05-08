@@ -5,7 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { useCart } from "@/components/CartProvider";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/data";
-import { ShoppingCart, ArrowLeft } from "lucide-react";
+import { ShoppingCart, ArrowLeft, CreditCard, IndianRupee, Wallet } from "lucide-react";
 import { CheckoutForm } from "@/components/CheckoutForm";
 
 export default function Checkout() {
