@@ -1,15 +1,15 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React from "react";
+import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { useCart } from "@/components/CartProvider";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/data";
-import { Trash2, ShoppingCart, ArrowLeft } from "lucide-react";
+import { ShoppingCart, ArrowLeft } from "lucide-react";
+import { CheckoutForm } from "@/components/CheckoutForm";
 
-export default function Cart() {
-  const { items, removeItem, updateQuantity, clearCart, subtotal, shipping, total } = useCart();
-  const navigate = useNavigate();
+export default function Checkout() {
+  const { items, subtotal, shipping, total } = useCart();
   
   if (items.length === 0) {
     return (
@@ -39,97 +39,47 @@ export default function Cart() {
       
       <div className="container pt-28 pb-16">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Your Cart</h1>
-          <Button variant="outline" size="sm" onClick={clearCart}>
-            Clear Cart
+          <h1 className="text-2xl font-bold">Checkout</h1>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/cart" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Cart
+            </Link>
           </Button>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <div
-                key={`${item.product.id}-${item.color}`}
-                className="border rounded-lg p-4 bg-card flex flex-col sm:flex-row gap-4"
-              >
-                <div className="sm:w-1/4">
-                  <img
-                    src={item.product.images[0] || "/placeholder.svg"}
-                    alt={item.product.name}
-                    className="aspect-[4/3] object-cover rounded-md w-full"
-                  />
-                </div>
-                <div className="sm:w-3/4 flex flex-col sm:flex-row justify-between flex-1">
-                  <div className="mb-4 sm:mb-0">
-                    <h3 className="font-semibold">{item.product.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Brand: {item.product.brand} | Color: {item.color}
-                    </p>
-                    <p className="font-medium">
-                      ₹{formatPrice(item.product.discountedPrice || item.product.price)}
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between sm:justify-end gap-4">
-                    <div className="flex items-center">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() =>
-                          updateQuantity(item.product.id, item.quantity - 1)
-                        }
-                        disabled={item.quantity <= 1}
-                      >
-                        -
-                      </Button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() =>
-                          updateQuantity(item.product.id, item.quantity + 1)
-                        }
-                      >
-                        +
-                      </Button>
-                    </div>
-                    
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={() => removeItem(item.product.id)}
-                    >
-                      <Trash2 size={18} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-            
-            <div className="pt-4">
-              <Button
-                variant="outline"
-                className="flex items-center"
-                asChild
-              >
-                <Link to="/products">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Continue Shopping
-                </Link>
-              </Button>
-            </div>
-          </div>
-          
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-card border rounded-lg p-6 sticky top-28">
               <h2 className="text-lg font-bold mb-4">Order Summary</h2>
               
-              <div className="space-y-3 mb-6">
+              <div className="space-y-4 mb-6">
+                {items.map((item) => (
+                  <div key={`${item.product.id}-${item.color}`} className="flex gap-4">
+                    <div className="w-16">
+                      <img
+                        src={item.product.images[0] || "/placeholder.svg"}
+                        alt={item.product.name}
+                        className="aspect-[4/3] object-cover rounded-md w-full"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{item.product.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Color: {item.color} | Qty: {item.quantity}
+                      </p>
+                      <p className="font-medium">
+                        ₹{formatPrice(
+                          (item.product.discountedPrice || item.product.price) * item.quantity
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="space-y-3 mb-6 border-t pt-3">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>₹{formatPrice(subtotal)}</span>
@@ -143,20 +93,12 @@ export default function Cart() {
                   <span>₹{formatPrice(total)}</span>
                 </div>
               </div>
-              
-              <Button
-                className="w-full"
-                size="lg"
-                onClick={() => navigate("/checkout")}
-              >
-                Proceed to Checkout
-              </Button>
-              
-              <div className="mt-4 text-xs text-center text-muted-foreground">
-                <p>Taxes calculated at checkout</p>
-                <p className="mt-1">Secure checkout powered by Razorpay</p>
-              </div>
             </div>
+          </div>
+          
+          {/* Checkout Form */}
+          <div className="lg:col-span-2">
+            <CheckoutForm />
           </div>
         </div>
       </div>
